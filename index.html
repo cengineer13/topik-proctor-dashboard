@@ -1,0 +1,2582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOPIK II - UKIU</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;900&family=Noto+Sans:wght@400;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <script src="config.js"></script>
+  <style>
+    :root {
+      --primary-blue: #0b45a3;
+      --navy-dark: #0f1e36;
+      --red-alert: #d32f2f;
+      --gray-bg: #f4f6f9;
+      --card-bg: #ffffff;
+      --border-color: #d8e0ea;
+      --text-dark: #1e293b;
+      --text-muted: #475569;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      background-color: var(--gray-bg);
+      font-family: 'Noto Sans KR', 'Noto Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: var(--text-dark);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Screen container optimized for 3840x2160 */
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: 28fr 34fr 38fr;
+      width: 100%;
+      min-height: 100vh;
+      height: 100vh;
+      padding: 24px;
+      gap: 24px;
+      background: linear-gradient(135deg, #eef3f9 0%, #f7f9fc 100%);
+    }
+
+    /* Column Cards */
+    .panel-card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 10px 30px rgba(15, 30, 54, 0.06);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ========================================================
+       LEFT PANEL: Answer Sheet Sample (image001.jpg)
+       ======================================================== */
+    .left-panel {
+      justify-content: center;
+      align-items: center;
+      padding: 16px 16px 44px;
+      gap: 10px;
+      background: #ffffff;
+    }
+
+    .sheet-frame {
+      flex: 1;
+      min-height: 0;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .left-panel img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      object-fit: contain;
+      border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ========================================================
+       CENTER PANEL: Title + Big Realtime Clock + Timetable + Exam Status / Countdown
+       ======================================================== */
+    .center-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 20px 20px 44px;
+      text-align: center;
+      background: #ffffff;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .exam-header {
+      width: 100%;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #edf2f7;
+      flex-shrink: 0;
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 0.35em;
+      white-space: nowrap;
+    }
+
+    .exam-round,
+    .exam-title {
+      font-size: clamp(1.6rem, 2.1vw, 3.8rem);
+      font-weight: 900;
+      color: var(--primary-blue);
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin: 0;
+      display: inline-block;
+      white-space: nowrap;
+    }
+
+    /* Digital Clock */
+    .clock-container {
+      width: 100%;
+      margin: 0;
+      padding: 12px 16px;
+      background: #f8fafc;
+      border-radius: 14px;
+      border: 2px solid #e2e8f0;
+      box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .clock-label {
+      font-size: clamp(0.75rem, 0.9vw, 1.25rem);
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .digital-clock {
+      font-family: 'Share Tech Mono', 'Consolas', monospace;
+      font-size: clamp(3.2rem, 4.4vw, 7.5rem);
+      font-weight: 700;
+      color: #0f274a;
+      line-height: 1;
+      letter-spacing: 2px;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      text-shadow: 0 4px 12px rgba(11, 69, 163, 0.15);
+    }
+
+    /* Timetable Box — HTML/CSS version (scales with its own container) */
+    .timetable-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 8px 10px;
+      border: 2px solid #e2e8f0;
+      box-shadow: 0 4px 16px rgba(15, 30, 54, 0.05);
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      box-sizing: border-box;
+      flex: 1.15 1 0;
+      min-height: 0;
+      overflow: hidden;
+      container-type: size;
+    }
+
+    .timetable-card .tt {
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6em;
+      padding: 0.4em 0.8em 0.6em;
+      color: #0e2240;
+      font-family: 'Noto Sans KR', 'Noto Sans', sans-serif;
+      font-size: clamp(7px, min(1.22cqw, 3.3cqh), 48px);
+      line-height: 1.15;
+      overflow: hidden;
+    }
+
+    .timetable-card .tt[hidden] {
+      display: none !important;
+    }
+
+    .tt-titles {
+      flex: 0 0 auto;
+      text-align: center;
+      line-height: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.08em;
+    }
+
+    .tt-brand {
+      font-size: 4.8em;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      color: #9c0016;
+      line-height: 1.05;
+    }
+
+    .tt-name {
+      font-size: 2.7em;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      color: #0e2240;
+      line-height: 1.1;
+    }
+
+    .tt-sub {
+      font-size: 2em;
+      font-weight: 700;
+      color: #6b7280;
+      line-height: 1.15;
+    }
+
+    .tt-table {
+      flex: 1;
+      min-height: 0;
+      display: grid;
+      grid-template-columns: 0.52fr 1.35fr 1.55fr 1fr 1fr 1.18fr;
+      grid-template-rows: auto 1.12fr 1fr;
+      gap: 0.38em;
+    }
+
+    .tt-spacer {
+      min-height: 0;
+    }
+
+    .tt-h {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 0.28em 0.25em;
+      border-radius: 0.45em;
+      background: #0e2240;
+      color: #ffffff;
+      font-size: 1.52em;
+      font-weight: 800;
+      line-height: 1.16;
+      letter-spacing: -0.01em;
+      word-break: keep-all;
+    }
+
+    .tt-num,
+    .tt-section,
+    .tt-cell,
+    .tt-dur {
+      min-width: 0;
+      min-height: 0;
+      border: 1px solid #dbe2ec;
+      border-radius: 0.5em;
+      background: linear-gradient(180deg, #fcfdff 0%, #eef1f6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .tt-num {
+      background: #ffffff;
+      border-right: 1px dashed #c3cedd;
+    }
+
+    .tt-num span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.8em;
+      height: 1.8em;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #2e74c0 0%, #17498a 100%);
+      box-shadow: 0 0.08em 0.25em rgba(23, 73, 138, 0.35);
+      color: #ffffff;
+      font-size: 2.1em;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .tt-section {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      padding: 0.12em 0.25em;
+    }
+
+    .tt-section > span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 2.65em;
+      font-weight: 900;
+      color: #9c0016;
+      line-height: 1.08;
+    }
+
+    .tt-section > span:first-child:not(:last-child) {
+      border-bottom: 1px solid #dbe2ec;
+    }
+
+    .tt-section.tt-single,
+    .tt-dur.tt-single {
+      grid-template-rows: 1fr;
+    }
+
+    .tt-section.tt-single > span:first-child {
+      border-bottom: 0;
+    }
+
+    .tt-cell {
+      padding: 0.15em;
+      gap: 0.35em;
+    }
+
+    .tt-time {
+      font-size: 2.75em;
+      font-weight: 900;
+      color: #0e2240;
+      letter-spacing: 0.01em;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .tt-clock {
+      width: 2.05em;
+      height: 2.05em;
+      flex: 0 0 auto;
+      color: #0e2240;
+    }
+
+    .tt-section,
+    .tt-dur {
+      grid-template-columns: 1fr;
+      justify-content: stretch;
+      align-items: stretch;
+    }
+
+    .tt-dur {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      padding: 0.1em 0.25em;
+    }
+
+    .tt-dur > span {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.45em;
+      font-weight: 900;
+      color: #9c0016;
+      line-height: 1.05;
+      white-space: nowrap;
+    }
+
+    .tt-dur > span:first-child:not(:last-child) {
+      border-bottom: 1px solid #dbe2ec;
+    }
+
+    .tt-dur i {
+      font-style: normal;
+      font-size: 0.62em;
+      font-weight: 700;
+      margin-left: 0.18em;
+    }
+
+    #timetable-ko .tt-h {
+      font-size: 1.48em;
+      letter-spacing: -0.02em;
+    }
+
+    #timetable-ko .tt-section > span {
+      font-size: 2.55em;
+    }
+
+    #timetable-ko .tt-brand {
+      font-size: 4.6em;
+    }
+
+    /* Exam Status & Countdown Timer Box (Newly opened bottom area) */
+    .status-card {
+      width: 100%;
+      flex: 1 1 0;
+      min-height: 200px;
+      background: #f8fafc;
+      border-radius: 16px;
+      border: 2px solid #cbd5e1;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(15, 30, 54, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .status-card.active-exam {
+      background: #f0fdf4;
+      border-color: #86efac;
+    }
+
+    .status-card.warning-alert {
+      border-color: #f87171;
+      background: #fff5f5;
+      animation: pulse-border 1.5s infinite;
+    }
+
+    .status-card.break-time {
+      background: #eff6ff;
+      border-color: #93c5fd;
+    }
+
+    @keyframes pulse-border {
+      0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4); }
+      70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+    }
+
+    .status-title {
+      font-size: clamp(1.4rem, 1.8vw, 3.2rem);
+      font-weight: 900;
+      color: #0b45a3;
+      margin-bottom: 8px;
+      line-height: 1.25;
+      text-align: center;
+      transition: color 0.3s ease;
+    }
+
+    .status-card:has(.status-timer.hidden) .status-title {
+      font-size: clamp(1.4rem, 1.75vw, 3.2rem);
+      margin-bottom: 0;
+      white-space: nowrap;
+    }
+
+    .status-card.warning-alert .status-title {
+      color: #dc2626;
+    }
+
+    .status-card.break-time .status-title {
+      color: #1d4ed8;
+    }
+
+    .status-timer {
+      font-family: 'Share Tech Mono', 'Consolas', monospace;
+      font-size: clamp(4.6rem, 6.2vw, 11rem);
+      font-weight: 700;
+      color: #dc2626;
+      line-height: 1;
+      letter-spacing: 3px;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: "tnum";
+      text-shadow: 0 3px 12px rgba(220, 38, 38, 0.22);
+    }
+
+    .status-timer.timer-blue {
+      color: #1d4ed8;
+      text-shadow: 0 3px 12px rgba(29, 78, 216, 0.22);
+    }
+
+    .status-timer.hidden {
+      display: none !important;
+    }
+
+    /* ========================================================
+       PANEL FOCUS BUTTON & FULLSCREEN MODE
+       ======================================================== */
+    .panel-focus-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 14px;
+      flex: 0 0 auto;
+      padding: 5px 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border-radius: 999px;
+      border: 1.5px solid #cbd5e1;
+      background: linear-gradient(135deg, #f8fafc 0%, #edf2f7 100%);
+      color: #1e40af;
+      cursor: pointer;
+      font-size: clamp(0.7rem, 0.75vw, 0.95rem);
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      transition: all 0.2s ease;
+      z-index: 10;
+      white-space: nowrap;
+      box-shadow: 0 2px 8px rgba(11, 69, 163, 0.1);
+    }
+
+    .panel-focus-btn svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+    }
+
+    .panel-focus-btn:hover {
+      background: linear-gradient(135deg, #0b45a3 0%, #1a5fc8 100%);
+      border-color: #0b45a3;
+      color: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(11, 69, 163, 0.28);
+    }
+
+    .panel-focus-btn .ic-close,
+    .panel-focus-btn .btn-label-close {
+      display: none;
+    }
+
+    .panel-focus-btn.is-active {
+      background: linear-gradient(135deg, #0b45a3 0%, #1a5fc8 100%);
+      border-color: #0b45a3;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(11, 69, 163, 0.3);
+    }
+
+    .panel-focus-btn.is-active .ic-expand,
+    .panel-focus-btn.is-active .btn-label-expand {
+      display: none;
+    }
+
+    .panel-focus-btn.is-active .ic-close,
+    .panel-focus-btn.is-active .btn-label-close {
+      display: inline;
+    }
+
+    .panel-card.is-hidden {
+      display: none !important;
+    }
+
+    .panel-card.is-focused {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      width: 100vw;
+      height: 100vh;
+      max-height: none;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      background: #ffffff;
+      overflow: hidden;
+    }
+
+    body.panel-focused {
+      overflow: hidden;
+    }
+
+    /* Demo button stays fully visible & clickable in focused mode */
+    body.panel-focused .demo-launcher-btn {
+      display: flex !important;
+      z-index: 99999 !important;
+    }
+
+    body.panel-focused .demo-control-panel {
+      z-index: 100000 !important;
+    }
+
+    .panel-card.is-focused > .panel-focus-btn {
+      position: fixed;
+      top: auto;
+      left: auto;
+      bottom: clamp(16px, 2.5vh, 36px);
+      right: clamp(18px, 2.5vw, 42px);
+      transform: none;
+      padding: 9px 24px;
+      font-size: clamp(0.85rem, 0.95vw, 1.15rem);
+      width: auto;
+      height: auto;
+      background: #0b45a3;
+      border-color: #0b45a3;
+      color: #ffffff;
+      box-shadow: 0 6px 24px rgba(15, 30, 54, 0.28);
+      z-index: 9999;
+    }
+
+    .panel-card.is-focused > .panel-focus-btn:hover {
+      background: #08337a;
+      border-color: #08337a;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(15, 30, 54, 0.35);
+    }
+
+    .panel-card.is-focused > .panel-focus-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    /* Left panel: large answer sheet, nothing clipped */
+    .panel-card.is-focused.left-panel {
+      padding: 2vh 2vw calc(clamp(16px, 2vh, 36px) + 62px);
+    }
+
+    .panel-card.is-focused.left-panel .sheet-frame {
+      max-height: 100%;
+    }
+
+    .panel-card.is-focused.left-panel img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+
+    /* Center panel focused: centered content with generous left/right margins */
+    .panel-card.is-focused.center-panel {
+      padding: 2.5vh 3vw calc(clamp(16px, 2.5vh, 40px) + 65px);
+      gap: 1.4vh;
+      justify-content: flex-start;
+      align-items: center;
+      background: linear-gradient(135deg, #f0f4fa 0%, #f8fafc 100%);
+      overflow-y: auto;
+    }
+
+    .panel-card.is-focused.center-panel .exam-header,
+    .panel-card.is-focused.center-panel .clock-container,
+    .panel-card.is-focused.center-panel .timetable-card,
+    .panel-card.is-focused.center-panel .status-card {
+      width: min(85vw, 1100px);
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .panel-card.is-focused.center-panel .exam-round,
+    .panel-card.is-focused.center-panel .exam-title {
+      font-size: clamp(1.8rem, 2.4vw, 5rem);
+    }
+
+    .panel-card.is-focused.center-panel .clock-container {
+      padding: 1.2vh 1.5vw;
+    }
+
+    .panel-card.is-focused.center-panel .clock-label {
+      font-size: clamp(0.9rem, 1vw, 1.8rem);
+      margin-bottom: 0.3vh;
+    }
+
+    .panel-card.is-focused.center-panel .digital-clock {
+      font-size: clamp(3.8rem, 5.5vw, 10rem);
+    }
+
+    .panel-card.is-focused.center-panel .timetable-card {
+      aspect-ratio: 2.22 / 1;
+      height: auto;
+      max-height: 42vh;
+      flex: 0 0 auto;
+    }
+
+    .panel-card.is-focused.center-panel .status-card {
+      flex: 0 0 auto;
+      min-height: clamp(140px, 18vh, 300px);
+    }
+
+    .panel-card.is-focused.center-panel .status-title {
+      font-size: clamp(1.4rem, 1.8vw, 3rem);
+    }
+
+    .panel-card.is-focused.center-panel .status-timer {
+      font-size: clamp(4.5rem, 6.5vw, 12rem);
+    }
+
+    /* Right panel: rules scale up and stay centered */
+    .panel-card.is-focused.right-panel {
+      padding: 1.6vh 3vw calc(clamp(16px, 2vh, 36px) + 62px);
+    }
+
+    .panel-card.is-focused.right-panel .rules-view {
+      width: min(100%, 2300px);
+      margin: 0 auto;
+    }
+
+    .panel-card.is-focused.right-panel .rules-main-title-ko {
+      font-size: clamp(1.6rem, 2vw, 4.4rem);
+    }
+
+    .panel-card.is-focused.right-panel .rules-main-title-uz {
+      font-size: clamp(1.4rem, 1.8vw, 3.8rem);
+    }
+
+    .panel-card.is-focused.right-panel .category-heading {
+      font-size: clamp(1.2rem, 1.5vw, 3.6rem);
+    }
+
+    .panel-card.is-focused.right-panel .category-heading-uz {
+      font-size: clamp(1.05rem, 1.3vw, 3rem);
+    }
+
+    .panel-card.is-focused.right-panel .rule-text-ko,
+    .panel-card.is-focused.right-panel .rule-text-uz {
+      font-size: clamp(1rem, 1.15vw, 3rem);
+    }
+
+    .panel-card.is-focused.right-panel .rule-item {
+      padding-left: 1.2em;
+    }
+
+    .panel-card.is-focused.right-panel .rule-item::before {
+      font-size: clamp(0.9rem, 1.05vw, 2.4rem);
+    }
+
+    .panel-card.is-focused.right-panel .rule-category {
+      padding: 1.1vh 1.2vw;
+    }
+
+    /* ========================================================
+       RIGHT PANEL: TOPIK Rules — manual UZ / KO toggle button
+       ======================================================== */
+    .right-panel {
+      padding: 14px 16px 48px 16px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ========================================================
+       RULES BOTTOM BAR (Audio Player + Zoom/Close Button)
+       ======================================================== */
+    .rules-bottom-bar {
+      position: absolute;
+      bottom: 10px;
+      right: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    .rules-bottom-bar .panel-focus-btn {
+      position: static;
+      margin: 0;
+    }
+
+    .rules-audio-bar {
+      position: static;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f8fafc;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 1px 4px rgba(15, 30, 54, 0.06);
+      transition: all 0.25s ease;
+    }
+
+    .audio-btn-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .audio-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 999px;
+      font-size: clamp(0.7rem, 0.75vw, 0.88rem);
+      font-weight: 700;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      background: #ffffff;
+      line-height: 1.2;
+      user-select: none;
+    }
+
+    .audio-btn .audio-svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+    }
+
+    /* Play Button */
+    .audio-btn.btn-play {
+      background: #0b45a3;
+      border-color: #0b45a3;
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(11, 69, 163, 0.25);
+    }
+    .audio-btn.btn-play:hover:not(:disabled) {
+      background: #08337a;
+      border-color: #08337a;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(11, 69, 163, 0.35);
+    }
+    .audio-btn.btn-play.is-playing {
+      background: #059669;
+      border-color: #059669;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.25);
+      animation: pulsePlay 1.8s infinite;
+    }
+
+    /* Pause Button */
+    .audio-btn.btn-pause {
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+    .audio-btn.btn-pause:hover:not(:disabled) {
+      border-color: #d97706;
+      color: #d97706;
+      background: #fffbeb;
+      transform: translateY(-1px);
+    }
+    .audio-btn.btn-pause.is-paused {
+      background: #d97706;
+      border-color: #d97706;
+      color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.25);
+    }
+
+    /* Stop Button */
+    .audio-btn.btn-stop {
+      border-color: #cbd5e1;
+      color: #475569;
+    }
+    .audio-btn.btn-stop:hover:not(:disabled) {
+      border-color: #dc2626;
+      color: #dc2626;
+      background: #fef2f2;
+      transform: translateY(-1px);
+    }
+
+    .audio-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
+    }
+
+    .audio-meta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding-left: 2px;
+    }
+
+    .audio-voice-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: clamp(0.65rem, 0.7vw, 0.8rem);
+      font-weight: 700;
+      background: #e2e8f0;
+      color: #334155;
+      padding: 2px 7px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
+    }
+    .audio-voice-badge.is-active {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .audio-wave-anim {
+      display: none;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #16a34a;
+    }
+    .audio-voice-badge.is-active .audio-wave-anim {
+      display: inline-block;
+      animation: pulseDot 1s infinite alternate;
+    }
+
+    .audio-time {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: clamp(0.7rem, 0.75vw, 0.85rem);
+      color: #64748b;
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes pulsePlay {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      50% { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+    }
+    @keyframes pulseDot {
+      from { transform: scale(0.8); opacity: 0.5; }
+      to { transform: scale(1.3); opacity: 1; }
+    }
+
+    /* Focused mode styling for rules bottom bar (Audio Player + Yopish Button) */
+    .panel-card.is-focused.right-panel .rules-bottom-bar {
+      position: fixed;
+      top: auto;
+      left: auto;
+      bottom: clamp(16px, 2.5vh, 36px);
+      right: clamp(18px, 2.5vw, 42px);
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 9999;
+    }
+
+    .panel-card.is-focused.right-panel .rules-bottom-bar .rules-audio-bar {
+      position: static;
+      padding: 7px 16px;
+      gap: 12px;
+      box-shadow: 0 6px 24px rgba(15, 30, 54, 0.16);
+      background: #ffffff;
+      border-color: #cbd5e1;
+    }
+
+    .panel-card.is-focused.right-panel .rules-bottom-bar .panel-focus-btn {
+      position: static;
+      margin: 0;
+      top: auto;
+      left: auto;
+      bottom: auto;
+      right: auto;
+      width: auto;
+      height: auto;
+      padding: 9px 24px;
+      font-size: clamp(0.85rem, 0.95vw, 1.15rem);
+      background: #0b45a3;
+      border-color: #0b45a3;
+      color: #ffffff;
+      box-shadow: 0 6px 24px rgba(15, 30, 54, 0.28);
+    }
+    .panel-card.is-focused.right-panel .rules-bottom-bar .panel-focus-btn:hover {
+      background: #08337a;
+      border-color: #08337a;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(15, 30, 54, 0.35);
+    }
+    .panel-card.is-focused.right-panel .rules-bottom-bar .panel-focus-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .panel-card.is-focused.right-panel .audio-btn {
+      padding: 7px 18px;
+      font-size: clamp(0.85rem, 0.95vw, 1.15rem);
+      gap: 8px;
+    }
+    .panel-card.is-focused.right-panel .audio-btn .audio-svg {
+      width: 15px;
+      height: 15px;
+    }
+    .panel-card.is-focused.right-panel .audio-voice-badge {
+      font-size: clamp(0.75rem, 0.85vw, 1rem);
+      padding: 3px 10px;
+    }
+    .panel-card.is-focused.right-panel .audio-time {
+      font-size: clamp(0.85rem, 0.9vw, 1.05rem);
+    }
+
+    /* ---- Top bar: language toggle buttons ---- */
+    .lang-toggle-bar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+
+    .lang-btn {
+      font-size: clamp(0.6rem, 0.7vw, 0.9rem);
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #f1f5f9;
+      color: #64748b;
+    }
+    .lang-btn.active-uz {
+      background: #dbeafe;
+      color: #1d4ed8;
+      border-color: #93c5fd;
+    }
+    .lang-btn.active-ko {
+      background: #fee2e2;
+      color: #b91c1c;
+      border-color: #fca5a5;
+    }
+    .lang-btn:hover:not(.active-uz):not(.active-ko) {
+      background: #e2e8f0;
+      color: #334155;
+    }
+
+    /* ---- View wrapper ---- */
+    .rules-view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .rules-view.hidden {
+      display: none;
+    }
+
+    /* ---- Header ---- */
+    .rules-header {
+      text-align: center;
+      padding-bottom: 8px;
+      margin-bottom: 10px;
+      border-bottom: 2px solid #e2e8f0;
+      flex-shrink: 0;
+    }
+
+    .rules-main-title-ko {
+      font-size: clamp(0.85rem, 1.0vw, 1.35rem);
+      font-weight: 900;
+      color: #0f1e36;
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+
+    .rules-main-title-uz {
+      font-size: clamp(0.75rem, 0.85vw, 1.1rem);
+      font-weight: 700;
+      color: var(--primary-blue);
+      line-height: 1.25;
+    }
+
+    /* ---- Category blocks ---- */
+    /* Distribute categories to fill remaining vertical space */
+    .rules-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      min-height: 0;
+    }
+
+    .rule-category {
+      flex: 1;                   /* stretch each category equally */
+      display: flex;
+      flex-direction: column;
+      background: #fffbfa;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 8px 11px;
+      margin-bottom: 8px;
+    }
+    .rule-category:last-child { margin-bottom: 0; }
+
+    .rule-category.level-1 {
+      background: #fff9f9;
+      border-color: #fca5a5;
+    }
+    .rule-category.level-2 {
+      background: #fff5f5;
+      border-color: #f87171;
+    }
+    .rule-category.level-3 {
+      flex: 0 0 auto;            /* cat-3 is short — don't over-stretch */
+      background: #fef2f2;
+      border-color: #ef4444;
+      border-width: 2px;
+    }
+
+    .category-heading {
+      font-size: clamp(0.72rem, 0.82vw, 1.05rem);
+      font-weight: 900;
+      color: var(--red-alert);
+      margin-bottom: 6px;
+      flex-shrink: 0;
+      line-height: 1.25;
+    }
+
+    .category-heading-uz {
+      font-size: clamp(0.65rem, 0.75vw, 0.95rem);
+      font-weight: 600;
+      color: #7f1d1d;
+    }
+
+    /* Items list — fill remaining space in category, evenly spaced */
+    .rules-items {
+      list-style: none;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;   /* spread items to fill height */
+      gap: 0;
+    }
+
+    .rule-item {
+      padding-left: 15px;
+      position: relative;
+      line-height: 1.35;
+    }
+
+    .rule-item::before {
+      content: "▷";
+      position: absolute;
+      left: 0;
+      top: 0;
+      color: var(--red-alert);
+      font-weight: bold;
+      font-size: 0.9em;
+    }
+
+    .rule-text-ko {
+      font-size: clamp(0.68rem, 0.78vw, 1.02rem);
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .rule-text-uz {
+      font-size: clamp(0.64rem, 0.74vw, 1.0rem);
+      font-weight: 500;
+      color: #1e293b;
+    }
+
+    /* ========================================================
+       RESPONSIVE & 4K RESOLUTION SPECIFICS (3840x2160)
+       ======================================================== */
+    @media (min-width: 2560px) {
+      .dashboard-container {
+        padding: 36px;
+        gap: 36px;
+      }
+      .panel-card {
+        border-radius: 24px;
+      }
+      .center-panel {
+        padding: 28px 24px 50px;
+        gap: 16px;
+      }
+      .clock-container {
+        border-radius: 20px;
+        padding: 24px 20px;
+      }
+      .timetable-card {
+        padding: 10px 12px;
+      }
+      .left-panel {
+        padding: 22px 22px 50px;
+        gap: 14px;
+      }
+      .panel-focus-btn {
+        width: auto;
+        height: auto;
+        font-size: 0.95rem;
+        padding: 8px 22px;
+        bottom: 14px;
+        right: 18px;
+      }
+      .panel-focus-btn svg {
+        width: 18px;
+        height: 18px;
+      }
+      .panel-card.is-focused.center-panel .exam-header,
+      .panel-card.is-focused.center-panel .clock-container,
+      .panel-card.is-focused.center-panel .timetable-card,
+      .panel-card.is-focused.center-panel .status-card {
+        width: min(75vw, 1750px);
+        max-width: 1750px;
+      }
+      .status-card {
+        padding: 20px 22px;
+        min-height: 220px;
+        border-radius: 20px;
+      }
+      .right-panel {
+        padding: 18px 20px 50px;
+      }
+      .rule-category {
+        padding: 8px 12px;
+        margin-bottom: 9px;
+      }
+      .rules-items {
+        gap: 5px;
+      }
+    }
+
+    @media (min-width: 3840px) {
+      .dashboard-container {
+        padding: 48px;
+        gap: 44px;
+      }
+      .center-panel {
+        padding: 36px 30px 60px;
+        gap: 24px;
+      }
+      .timetable-card {
+        padding: 14px 18px;
+        border-radius: 24px;
+        border-width: 3px;
+        box-shadow: 0 8px 32px rgba(15, 30, 54, 0.06);
+      }
+      .left-panel {
+        padding: 28px 28px 60px;
+        gap: 16px;
+      }
+      .panel-focus-btn {
+        width: auto;
+        height: auto;
+        font-size: 1.1rem;
+        padding: 10px 28px;
+        bottom: 18px;
+        right: 22px;
+      }
+      .panel-focus-btn svg {
+        width: 22px;
+        height: 22px;
+      }
+      .rules-bottom-bar {
+        bottom: 18px;
+        right: 22px;
+        gap: 14px;
+      }
+      .panel-card.is-focused.right-panel .rules-bottom-bar {
+        bottom: 36px;
+        right: 48px;
+        gap: 20px;
+      }
+      .panel-card.is-focused.right-panel .rules-bottom-bar .panel-focus-btn {
+        padding: 16px 48px;
+        font-size: 1.35rem;
+      }
+      .panel-card.is-focused.right-panel .rules-bottom-bar .panel-focus-btn svg {
+        width: 26px;
+        height: 26px;
+      }
+      .panel-card.is-focused > .panel-focus-btn {
+        padding: 16px 48px;
+        font-size: 1.35rem;
+        bottom: 36px;
+        right: 48px;
+      }
+      .panel-card.is-focused > .panel-focus-btn svg {
+        width: 26px;
+        height: 26px;
+      }
+      .panel-card.is-focused.center-panel .exam-header,
+      .panel-card.is-focused.center-panel .clock-container,
+      .panel-card.is-focused.center-panel .timetable-card,
+      .panel-card.is-focused.center-panel .status-card {
+        width: min(70vw, 2200px);
+        max-width: 2200px;
+      }
+      .status-card {
+        padding: 36px 40px;
+        min-height: 380px;
+        border-radius: 28px;
+        border-width: 4px;
+      }
+      .status-title {
+        font-size: clamp(2.4rem, 2.2vw, 4.2rem);
+        margin-bottom: 16px;
+      }
+      .status-timer {
+        font-size: clamp(8.5rem, 8.5vw, 15rem);
+        letter-spacing: 6px;
+      }
+      .digital-clock {
+        font-size: clamp(6.2rem, 6.5vw, 10.5rem);
+      }
+    }
+
+    /* Small screens / preview fallback */
+    @media (max-width: 1200px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+        height: auto;
+        min-height: auto;
+      }
+      .panel-card {
+        min-height: 500px;
+      }
+      .right-panel {
+        overflow-y: auto;
+        max-height: 800px;
+      }
+    }
+
+    /* ========================================================
+       DEMO / TEST CONTROL BAR (Sinov va tekshirish uchun)
+       ======================================================== */
+    .demo-launcher-btn {
+      position: fixed;
+      top: 14px;
+      left: 16px;
+      background: rgba(15, 23, 42, 0.7);
+      backdrop-filter: blur(8px);
+      color: #94a3b8;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      opacity: 0.65;
+    }
+    .demo-launcher-btn:hover {
+      background: #0f172a;
+      color: #38bdf8;
+      opacity: 1;
+      transform: scale(1.05);
+    }
+
+    .demo-control-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.96);
+      backdrop-filter: blur(10px);
+      color: #ffffff;
+      padding: 12px 24px;
+      border-top: 2px solid #38bdf8;
+      box-shadow: 0 -8px 30px rgba(0,0,0,0.35);
+      z-index: 10000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .demo-control-panel.collapsed {
+      transform: translateY(115%);
+      pointer-events: none;
+    }
+
+    .demo-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+    .demo-header-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #38bdf8;
+    }
+    .demo-close-btn {
+      background: #334155;
+      border: none;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .demo-close-btn:hover {
+      background: #475569;
+    }
+
+    .demo-buttons-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .demo-btn {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .demo-btn:hover {
+      background: #38bdf8;
+      color: #0f172a;
+      border-color: #38bdf8;
+    }
+    .demo-btn.active-demo {
+      background: #0284c7;
+      color: #ffffff;
+      border-color: #38bdf8;
+      font-weight: 800;
+    }
+    .demo-btn.reset-live {
+      background: #15803d;
+      color: #ffffff;
+      border-color: #22c55e;
+    }
+    .demo-btn.reset-live:hover {
+      background: #16a34a;
+    }
+
+    .demo-custom-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+    }
+    .demo-custom-row input[type="time"] {
+      background: #0f172a;
+      border: 1px solid #475569;
+      color: #ffffff;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 0.85rem;
+    }
+    .demo-custom-row button {
+      background: #0284c7;
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    @media (min-width: 2560px) {
+      .demo-launcher-btn {
+        top: 24px;
+        left: 24px;
+        font-size: 1.15rem;
+        padding: 10px 22px;
+      }
+      .demo-control-panel {
+        padding: 18px 36px;
+        gap: 14px;
+      }
+      .demo-header {
+        font-size: 1.3rem;
+      }
+      .demo-btn {
+        font-size: 1.05rem;
+        padding: 10px 18px;
+        border-radius: 10px;
+      }
+      .demo-close-btn {
+        font-size: 1.05rem;
+        padding: 8px 18px;
+      }
+      .demo-custom-row {
+        font-size: 1.1rem;
+      }
+      .demo-custom-row input[type="time"] {
+        font-size: 1.15rem;
+        padding: 6px 14px;
+      }
+      .demo-custom-row button {
+        font-size: 1.1rem;
+        padding: 8px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="dashboard-container">
+    
+    <!-- LEFT PANEL: Image / Sample Answer Sheet -->
+    <section class="panel-card left-panel" data-panel="sheet">
+      <div class="sheet-frame">
+        <img id="answer-sheet-img"
+             src="index.files/answer-sheet-uz.jpg"
+             alt="TOPIK javoblar blankasini to'ldirish namunasi">
+      </div>
+      <button type="button" class="panel-focus-btn" data-focus-panel="sheet"
+              onclick="togglePanelFocus('sheet')"
+              aria-label="Zoom" aria-pressed="false" title="Zoom">
+        <svg class="ic-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+        <span class="btn-label-expand">Zoom</span>
+        <svg class="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 6l12 12"></path>
+          <path d="M18 6L6 18"></path>
+        </svg>
+        <span class="btn-label-close">Yopish</span>
+      </button>
+    </section>
+
+    <!-- CENTER PANEL: Round, Title, Realtime Clock, Timetable -->
+    <section class="panel-card center-panel" data-panel="timetable">
+      <div class="exam-header">
+        <h2 class="exam-round" id="exam-round">108-TOPIK II</h2>
+        <h1 class="exam-title" id="exam-title">IMTIHONI</h1>
+      </div>
+
+      <div class="clock-container">
+        <div class="clock-label">Hozirgi vaqt / 현재 시각</div>
+        <div class="digital-clock" id="clocktext">00:00:00</div>
+      </div>
+
+      <div class="timetable-card">
+
+        <!-- ══════════ UZBEK TIMETABLE (HTML/CSS) ══════════ -->
+        <div class="tt" id="timetable-uz" lang="uz">
+          <div class="tt-titles">
+            <div class="tt-brand">TOPIK II</div>
+            <div class="tt-name">IMTIHON JADVALI</div>
+          </div>
+          <div class="tt-table">
+            <div class="tt-spacer" aria-hidden="true"></div>
+            <div class="tt-h">Imtihon bo'limi</div>
+            <div class="tt-h">Imtihon joyiga<br>kelish vaqti</div>
+            <div class="tt-h">Boshlanish<br>vaqti</div>
+            <div class="tt-h">Tugash<br>vaqti</div>
+            <div class="tt-h">Imtihon<br>davomiyligi</div>
+
+            <div class="tt-num"><span>1</span></div>
+            <div class="tt-section">
+              <span>Eshitish</span>
+              <span>Yozish</span>
+            </div>
+            <div class="tt-cell">
+              <svg class="tt-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 2"></path>
+              </svg>
+              <span class="tt-time">09:10</span>
+              <svg class="tt-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 2"></path>
+              </svg>
+            </div>
+            <div class="tt-cell"><span class="tt-time">09:40</span></div>
+            <div class="tt-cell"><span class="tt-time">11:30</span></div>
+            <div class="tt-dur">
+              <span>60&nbsp;<i>(daq)</i></span>
+              <span>50&nbsp;<i>(daq)</i></span>
+            </div>
+
+            <div class="tt-num"><span>2</span></div>
+            <div class="tt-section tt-single"><span>O'qish</span></div>
+            <div class="tt-cell"><span class="tt-time">11:50</span></div>
+            <div class="tt-cell"><span class="tt-time">12:00</span></div>
+            <div class="tt-cell"><span class="tt-time">13:10</span></div>
+            <div class="tt-dur tt-single"><span>70&nbsp;<i>(daq)</i></span></div>
+          </div>
+        </div>
+
+        <!-- ══════════ KOREAN TIMETABLE (HTML/CSS) ══════════ -->
+        <div class="tt" id="timetable-ko" lang="ko" hidden>
+          <div class="tt-titles">
+            <div class="tt-brand">TOPIK II</div>
+            <div class="tt-name">시험 시간표</div>
+            <div class="tt-sub">시험 영역 및 시간</div>
+          </div>
+          <div class="tt-table">
+            <div class="tt-spacer" aria-hidden="true"></div>
+            <div class="tt-h">시험 영역</div>
+            <div class="tt-h">시험실<br>입실 시간</div>
+            <div class="tt-h">시험 시작<br>시간</div>
+            <div class="tt-h">시험 종료<br>시간</div>
+            <div class="tt-h">시험 시간<br>(분)</div>
+
+            <div class="tt-num"><span>1</span></div>
+            <div class="tt-section">
+              <span>듣기</span>
+              <span>쓰기</span>
+            </div>
+            <div class="tt-cell">
+              <svg class="tt-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 2"></path>
+              </svg>
+              <span class="tt-time">09:10</span>
+              <svg class="tt-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 7v5l3 2"></path>
+              </svg>
+            </div>
+            <div class="tt-cell"><span class="tt-time">09:40</span></div>
+            <div class="tt-cell"><span class="tt-time">11:30</span></div>
+            <div class="tt-dur">
+              <span>60&nbsp;<i>(분)</i></span>
+              <span>50&nbsp;<i>(분)</i></span>
+            </div>
+
+            <div class="tt-num"><span>2</span></div>
+            <div class="tt-section tt-single"><span>읽기</span></div>
+            <div class="tt-cell"><span class="tt-time">11:50</span></div>
+            <div class="tt-cell"><span class="tt-time">12:00</span></div>
+            <div class="tt-cell"><span class="tt-time">13:10</span></div>
+            <div class="tt-dur tt-single"><span>70&nbsp;<i>(분)</i></span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Exam Status & Countdown Timer (Pastda ochilgan bo'sh joy) -->
+      <div class="status-card" id="status-card">
+        <div class="status-title" id="status-text">Imtihon boshlanishi kutilmoqda...</div>
+        <div class="status-timer" id="status-timer">00:00</div>
+      </div>
+
+      <button type="button" class="panel-focus-btn" data-focus-panel="timetable"
+              onclick="togglePanelFocus('timetable')"
+              aria-label="Zoom" aria-pressed="false" title="Zoom">
+        <svg class="ic-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+        </svg>
+        <span class="btn-label-expand">Zoom</span>
+        <svg class="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M6 6l12 12"></path>
+          <path d="M18 6L6 18"></path>
+        </svg>
+        <span class="btn-label-close">Yopish</span>
+      </button>
+    </section>
+
+    <!-- RIGHT PANEL: TOPIK Rules — manual UZ/KO toggle -->
+    <section class="panel-card right-panel" data-panel="rules">
+
+      <!-- Top bar: language buttons -->
+      <div class="lang-toggle-bar">
+        <button class="lang-btn active-uz" id="btn-uz" onclick="switchLang('uz')">🇺🇿 O'zbekcha</button>
+        <button class="lang-btn" id="btn-ko" onclick="switchLang('ko')">🇰🇷 한국어</button>
+      </div>
+
+      <!-- ══════════ UZBEKCHA VIEW ══════════ -->
+      <div class="rules-view" id="view-uz">
+        <header class="rules-header">
+          <p class="rules-main-title-uz">TOPIK imtihoniga aloqador qoidabuzarlik turlari va qoidabuzarlarga qo'llaniladigan jazo turlari</p>
+        </header>
+        <div class="rules-body">
+
+          <!-- Cat 1 UZ -->
+          <article class="rule-category level-1">
+            <h3 class="category-heading">1. <span class="category-heading-uz">Ushbu imtihon natijasi bekor qilinadi</span></h3>
+            <ul class="rules-items">
+              <li class="rule-item"><div class="rule-text-uz">Savol varaqalarini imtihon boshlanishidan oldin ochishga uringan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Imtihon javob varaqasini boshlanishdan oldin yoki tugagandan so'ng to'ldirishga uringan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Aloqa qurilmasini o'zida ushlab turgan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Ovozni yozib olish, tasvirga olish funksiyasiga ega elektron qurilmalarni ushlab turish harakati.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Nazoratchining shaxsni tasdiqlash yoki buyumlarni tekshirishga bo'lgan talabiga bo'ysunmaslik.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Eshitish imtihoni vaqtida boshqa savollar (o'qish, yozish)ni yechib javoblarini belgilab o'tirish.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Boshqaning javoblar varaqasiga qarashga yoki o'zining varaqasini boshqaga ko'rsatishga uringan shaxslar.</div></li>
+            </ul>
+          </article>
+
+          <!-- Cat 2 UZ -->
+          <article class="rule-category level-2">
+            <h3 class="category-heading">2. <span class="category-heading-uz">Imtihon natijasi bekor qilinadi va 2 yil taqiq qo'yiladi</span></h3>
+            <ul class="rules-items">
+              <li class="rule-item"><div class="rule-text-uz">Boshqa shaxsning javoblar varaqasiga qaragan yoki o'zining varaqasini boshqa shaxsga ko'rsatgan.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Aloqa qurilmalari yoki imo-ishoralar orqali imtihon javoblarini almashgan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Noqonuniy materiallar (shpargalka) olib kirgan yoki ulardan foydalangan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Nazoratchining ko'rsatmalariga bo'ysunmagan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Imtihonni o'tkazishga jiddiy tarzda halaqit berish.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Boshqalardan to'g'ri javobni talab qilish.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Savollar va javoblarni varaqadan tashqari joyga yozgan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Imtihon tugagach savollar kitobi yoki javoblar varaqasini topshirmagan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Savollar/javoblar varaqasini tasvirga olgan, ovoz yozgan yoki internet orqali oshkor qilgan shaxslar.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Hujjatlarni (pasport va boshqalar) soxtalashtirib imtihonda qatnashish.</div></li>
+              <li class="rule-item"><div class="rule-text-uz">Natija sertifikatini qalbakilashtirib foydalangan shaxslar.</div></li>
+            </ul>
+          </article>
+
+          <!-- Cat 3 UZ -->
+          <article class="rule-category level-3">
+            <h3 class="category-heading">3. <span class="category-heading-uz">Imtihon natijasi bekor qilinadi va 4 yil taqiq qo'yiladi</span></h3>
+            <ul class="rules-items">
+              <li class="rule-item"><div class="rule-text-uz">Imtihonga o'rniga birovni kiritish yoki birovning o'rniga imtihonga kirish.</div></li>
+            </ul>
+          </article>
+
+        </div><!-- /.rules-body -->
+      </div><!-- /#view-uz -->
+
+      <!-- ══════════ KOREYSCHA VIEW ══════════ -->
+      <div class="rules-view hidden" id="view-ko">
+        <header class="rules-header">
+          <h2 class="rules-main-title-ko">TOPIK 부정행위 유형 및 제재 조치</h2>
+        </header>
+        <div class="rules-body">
+
+          <!-- Cat 1 KO -->
+          <article class="rule-category level-1">
+            <h3 class="category-heading">1. 해당 시험 무효 처리</h3>
+            <ul class="rules-items">
+              <li class="rule-item"><div class="rule-text-ko">시험 시작 전에 시험문제를 열람하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">시험 시작 전이나 종료 후에 답안을 작성하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">허용되지 않은 통신기기등을 가지고 있는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">녹음, 촬영 등이 가능한 전자기기를 가지고 있는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">감독관의 본인 확인 및 소지품 검색 요구에 따르지 않는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">각 영역의 시험 시간을 준수하지 않고 문제를 풀거나 답안을 작성하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">다른 응시자의 답안을 보려고 시도하거나 본인의 답안을 다른 응시자에게 보여주려고 시도하는 행위</div></li>
+            </ul>
+          </article>
+
+          <!-- Cat 2 KO -->
+          <article class="rule-category level-2">
+            <h3 class="category-heading">2. 해당 시험 무효 처리 및 2년간 응시자격 제한</h3>
+            <ul class="rules-items">
+              <li class="rule-item"><div class="rule-text-ko">다른 응시자의 답안을 보거나 본인의 답안을 다른 응시자에게 보여주는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">통신기기, 그 밖의 신호 등을 이용하여 시험 내용에 관하여 다른 사람과 의사소통하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">부정한 자료를 가지고 있거나 이용하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">공정한 시험 운영에 필요한 감독관의 정당한 지시에 따르지 않는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">시험 운영이나 진행에 중대한 방해를 하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">타인에게 답안을 알려줄 것을 강요하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">문제지와 답안지가 아닌 곳에 문제나 답안을 작성하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">시험 종료 후 문제지나 답안지를 제출하지 않는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">문제지, 답안지 촬영, 음원 녹음 및 해당 내용을 인터넷 등 기타 방법으로 공개하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">신분증 및 각종 제출 서류를 위·변조하여 시험에 응시하는 행위</div></li>
+              <li class="rule-item"><div class="rule-text-ko">성적증명서를 위·변조하여 사용하는 행위</div></li>
+            </ul>
+          </article>
+
+          <!-- Cat 3 KO -->
+          <article class="rule-category level-3">
+            <h3 class="category-heading">3. 해당 시험 무효 처리 및 4년간 응시자격 제한</h3>
+            <ul class="rules-items">
+              <li class="rule-item"><div class="rule-text-ko">대리시험을 의뢰하거나 대리로 시험에 응시하는 행위</div></li>
+            </ul>
+          </article>
+
+        </div><!-- /.rules-body -->
+      </div><!-- /#view-ko -->
+
+      <!-- Bottom-right bar: Audio Player + Zoom/Close Button -->
+      <div class="rules-bottom-bar">
+        <!-- Audio Player (Play / Pause / Stop) -->
+        <div class="rules-audio-bar" id="rules-audio-bar">
+          <audio id="rules-audio" preload="auto" src="index.files/rules-audio-uz.mp3"></audio>
+          <div class="audio-btn-group">
+            <button type="button" class="audio-btn btn-play" id="audio-play-btn" onclick="playRulesAudio()" title="Qoidalarni ovozli o'qish (Play)">
+              <svg class="audio-svg" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="6 4 20 12 6 20 6 4"/>
+              </svg>
+              <span class="audio-label" id="audio-label-play">Play</span>
+            </button>
+            <button type="button" class="audio-btn btn-pause" id="audio-pause-btn" onclick="pauseRulesAudio()" title="Vaqtincha to'xtatish (Pause)" disabled>
+              <svg class="audio-svg" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="4" width="4" height="16" rx="1"/>
+                <rect x="14" y="4" width="4" height="16" rx="1"/>
+              </svg>
+              <span class="audio-label" id="audio-label-pause">Pause</span>
+            </button>
+            <button type="button" class="audio-btn btn-stop" id="audio-stop-btn" onclick="stopRulesAudio()" title="Butunlay to'xtatish (Stop)" disabled>
+              <svg class="audio-svg" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="5" y="5" width="14" height="14" rx="2"/>
+              </svg>
+              <span class="audio-label" id="audio-label-stop">Stop</span>
+            </button>
+          </div>
+          <div class="audio-meta">
+            <span class="audio-voice-badge" id="audio-voice-badge">
+              <span class="audio-wave-anim"></span>
+              <span id="audio-voice-text">AI Ovoz</span>
+            </span>
+            <span class="audio-time" id="audio-time">00:00 / 02:01</span>
+          </div>
+        </div>
+
+        <!-- Zoom / Yopish button -->
+        <button type="button" class="panel-focus-btn" data-focus-panel="rules"
+                onclick="togglePanelFocus('rules')"
+                aria-label="Zoom" aria-pressed="false" title="Zoom">
+          <svg class="ic-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+          </svg>
+          <span class="btn-label-expand">Zoom</span>
+          <svg class="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 6l12 12"></path>
+            <path d="M18 6L6 18"></path>
+          </svg>
+          <span class="btn-label-close">Yopish</span>
+        </button>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Small Button in Top-Left to Open Demo Panel (Not opened automatically) -->
+  <button id="demo-toggle-btn" class="demo-launcher-btn" onclick="toggleDemoPanel()" title="Sinov / Demo panelini ochish">
+    ⚙️ Demo
+  </button>
+
+  <!-- Demo Control Panel (Default collapsed/hidden) -->
+  <div id="demo-control-panel" class="demo-control-panel collapsed">
+    <div class="demo-header">
+      <div class="demo-header-title">
+        <span>⚙️</span>
+        <span id="demo-header-title-text">TOPIK II Imtihon Vaqtlarini Sinash (Demo) Paneli</span>
+        <span id="demo-status-badge" style="font-size:0.75rem; background:#334155; padding:2px 8px; border-radius:12px; color:#38bdf8;">Real vaqt</span>
+      </div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button type="button" id="demo-btn-live" class="demo-btn reset-live" onclick="setDemoPreset(null, this)">🟢 Hozirgi Real Vaqt</button>
+        <button type="button" id="demo-btn-nonexam" class="demo-btn" style="background:#7c2d12; border-color:#ea580c; color:#fff;" onclick="setDemoNonExamDay(this)">🚫 Imtihon kuni emas</button>
+        <button type="button" id="demo-btn-close" class="demo-close-btn" onclick="toggleDemoPanel()">✕ Yopish</button>
+      </div>
+    </div>
+
+    <!-- Presets -->
+    <div class="demo-buttons-row">
+      <span class="demo-cat-label" id="demo-cat-1" style="font-size:0.75rem; color:#94a3b8; font-weight:700;">1. Eshitish:</span>
+      <button type="button" class="demo-btn" data-preset="09:40:00" onclick="setDemoPreset('09:40:00', this)">09:40 (Boshlandi)</button>
+      <button type="button" class="demo-btn" data-preset="10:00:00" onclick="setDemoPreset('10:00:00', this)">10:00 (Jarayonda)</button>
+      <button type="button" class="demo-btn" data-preset="10:38:00" onclick="setDemoPreset('10:38:00', this)">10:38 (2m qoldi, Eshitish tugamoqda)</button>
+
+      <span class="demo-cat-label" id="demo-cat-2" style="font-size:0.75rem; color:#94a3b8; font-weight:700; margin-left:8px;">2. Yozish:</span>
+      <button type="button" class="demo-btn" data-preset="10:40:00" onclick="setDemoPreset('10:40:00', this)">10:40 (Boshlandi)</button>
+      <button type="button" class="demo-btn" data-preset="11:00:00" onclick="setDemoPreset('11:00:00', this)">11:00 (Jarayonda)</button>
+      <button type="button" class="demo-btn" data-preset="11:20:00" onclick="setDemoPreset('11:20:00', this)">11:20 (10m qoldi, 20s)</button>
+      <button type="button" class="demo-btn" data-preset="11:25:00" onclick="setDemoPreset('11:25:00', this)">11:25 (5m qoldi, 20s)</button>
+      <button type="button" class="demo-btn" data-preset="11:28:00" onclick="setDemoPreset('11:28:00', this)">11:28 (2m qoldi, Yozish tugamoqda)</button>
+
+      <span class="demo-cat-label" id="demo-cat-3" style="font-size:0.75rem; color:#94a3b8; font-weight:700; margin-left:8px;">3. Tanaffus:</span>
+      <button type="button" class="demo-btn" data-preset="11:30:00" onclick="setDemoPreset('11:30:00', this)">11:30 (Yozish tugadi, 5s)</button>
+      <button type="button" class="demo-btn" data-preset="11:30:10" onclick="setDemoPreset('11:30:10', this)">11:30:10 (Tanaffus 20m)</button>
+      <button type="button" class="demo-btn" data-preset="11:50:00" onclick="setDemoPreset('11:50:00', this)">11:50 (Auditoriyaga kirish)</button>
+
+      <span class="demo-cat-label" id="demo-cat-4" style="font-size:0.75rem; color:#94a3b8; font-weight:700; margin-left:8px;">4. O'qish:</span>
+      <button type="button" class="demo-btn" data-preset="12:00:00" onclick="setDemoPreset('12:00:00', this)">12:00 (Boshlandi)</button>
+      <button type="button" class="demo-btn" data-preset="12:30:00" onclick="setDemoPreset('12:30:00', this)">12:30 (Jarayonda)</button>
+      <button type="button" class="demo-btn" data-preset="13:00:00" onclick="setDemoPreset('13:00:00', this)">13:00 (10m qoldi, 20s)</button>
+      <button type="button" class="demo-btn" data-preset="13:05:00" onclick="setDemoPreset('13:05:00', this)">13:05 (5m qoldi, 20s)</button>
+      <button type="button" class="demo-btn" data-preset="13:08:00" onclick="setDemoPreset('13:08:00', this)">13:08 (2m qoldi, O'qish tugamoqda)</button>
+      <button type="button" class="demo-btn" data-preset="13:10:00" onclick="setDemoPreset('13:10:00', this)">13:10 (Imtihon tugadi)</button>
+    </div>
+
+    <!-- Custom time input -->
+    <div class="demo-custom-row">
+      <span id="demo-custom-label">Ixtiyoriy vaqt kiritish:</span>
+      <input type="time" id="demo-custom-time" step="1" value="09:40:00">
+      <button type="button" id="demo-btn-custom-set" onclick="applyCustomDemoTime()">O'rnatish</button>
+      <span id="demo-custom-hint" style="color:#64748b; font-size:0.75rem;">(Vaqt tanlangach, soat shu nuqtadan boshlab real sekundlarda harakatlanadi)</span>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    // ── Global Language State ─────────────────────────────────
+    let currentLang = "uz";
+
+    // ── Backend Config (config.txt) ───────────────────────────
+    let examConfig = {
+      topik: "108",
+      date: "15.10.2020"
+    };
+
+    let demoForceExamDay = null; // null = auto check date; true = simulate exam day; false = non-exam day
+    let currentDemoState = { type: "real", timeStr: null };
+
+    function parseDateParts(dateStr) {
+      if (!dateStr) return null;
+      // Strip comments or parentheses, e.g. "(DD.MM.YYYY)"
+      const clean = dateStr.replace(/\(.*?\)/g, "").trim().replace(/[-/]/g, ".");
+      const parts = clean.split(".").map(p => p.trim()).filter(Boolean);
+      if (parts.length !== 3) return null;
+
+      let d, m, y;
+      if (parts[0].length === 4) {
+        // YYYY.MM.DD
+        y = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10);
+        d = parseInt(parts[2], 10);
+      } else {
+        // DD.MM.YYYY
+        d = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10);
+        y = parseInt(parts[2], 10);
+      }
+      if (isNaN(y) || isNaN(m) || isNaN(d)) return null;
+      return {
+        year: y,
+        month: m,
+        day: d,
+        formattedDDMMYYYY: `${String(d).padStart(2, "0")}.${String(m).padStart(2, "0")}.${y}`
+      };
+    }
+
+    const demoPresetLabels = {
+      "09:40:00": { uz: "09:40 (Boshlandi)", ko: "09:40 (시작)" },
+      "10:00:00": { uz: "10:00 (Jarayonda)", ko: "10:00 (진행 중)" },
+      "10:38:00": { uz: "10:38 (2m qoldi, Eshitish tugamoqda)", ko: "10:38 (2분 전, 듣기 종료 임박)" },
+      "10:40:00": { uz: "10:40 (Boshlandi)", ko: "10:40 (시작)" },
+      "11:00:00": { uz: "11:00 (Jarayonda)", ko: "11:00 (진행 중)" },
+      "11:20:00": { uz: "11:20 (10m qoldi, 20s)", ko: "11:20 (10분 전, 20초간)" },
+      "11:25:00": { uz: "11:25 (5m qoldi, 20s)", ko: "11:25 (5분 전, 20초간)" },
+      "11:28:00": { uz: "11:28 (2m qoldi, Yozish tugamoqda)", ko: "11:28 (2분 전, 쓰기 종료 임박)" },
+      "11:30:00": { uz: "11:30 (Yozish tugadi, 5s)", ko: "11:30 (쓰기 종료, 5초간)" },
+      "11:30:10": { uz: "11:30:10 (Tanaffus 20m)", ko: "11:30:10 (휴식 20분)" },
+      "11:50:00": { uz: "11:50 (Auditoriyaga kirish)", ko: "11:50 (입실 및 준비)" },
+      "12:00:00": { uz: "12:00 (Boshlandi)", ko: "12:00 (시작)" },
+      "12:30:00": { uz: "12:30 (Jarayonda)", ko: "12:30 (진행 중)" },
+      "13:00:00": { uz: "13:00 (10m qoldi, 20s)", ko: "13:00 (10분 전, 20초간)" },
+      "13:05:00": { uz: "13:05 (5m qoldi, 20s)", ko: "13:05 (5분 전, 20초간)" },
+      "13:08:00": { uz: "13:08 (2m qoldi, O'qish tugamoqda)", ko: "13:08 (2분 전, 읽기 종료 임박)" },
+      "13:10:00": { uz: "13:10 (Imtihon tugadi)", ko: "13:10 (시험 종료)" }
+    };
+
+    function updateExamHeader() {
+      const roundElem = document.getElementById("exam-round");
+      const titleElem = document.getElementById("exam-title");
+      const num = examConfig.topik || "108";
+      if (currentLang === "ko") {
+        if (roundElem) roundElem.textContent = "제 " + num + "회";
+        if (titleElem) titleElem.textContent = "TOPIK II 시험";
+        document.title = "제 " + num + "회 TOPIK II 시험";
+      } else {
+        if (roundElem) roundElem.textContent = num + "-TOPIK II";
+        if (titleElem) titleElem.textContent = "IMTIHONI";
+        document.title = num + "-TOPIK II IMTIHONI";
+      }
+    }
+
+    function applyConfig() {
+      updateExamHeader();
+      updateDemoPanelLang();
+    }
+
+    function loadConfig() {
+      if (window.CONFIG) {
+        if (window.CONFIG.TOPIK) examConfig.topik = String(window.CONFIG.TOPIK).trim();
+        if (window.CONFIG.TOPIK_DATE) examConfig.date = String(window.CONFIG.TOPIK_DATE).trim();
+      }
+      applyConfig();
+    }
+
+    function updateDemoBadge() {
+      const badge = document.getElementById("demo-status-badge");
+      if (!badge) return;
+      if (currentDemoState.type === "real") {
+        badge.textContent = (currentLang === "ko") ? "현재 실시간" : "Real vaqt";
+        badge.style.background = "#334155";
+        badge.style.color = "#38bdf8";
+      } else if (currentDemoState.type === "nonexam") {
+        badge.textContent = (currentLang === "ko") ? "시험일 아님" : "Boshqa kun";
+        badge.style.background = "#7c2d12";
+        badge.style.color = "#ffedd5";
+      } else if (currentDemoState.type === "preset") {
+        const prefix = (currentLang === "ko") ? "시뮬레이션: " : "Sinov: ";
+        badge.textContent = prefix + (currentDemoState.timeStr || "");
+        badge.style.background = "#0284c7";
+        badge.style.color = "#ffffff";
+      }
+    }
+
+    function updateDemoPanelLang() {
+      const isKo = (currentLang === "ko");
+
+      const toggleBtn = document.getElementById("demo-toggle-btn");
+      if (toggleBtn) {
+        toggleBtn.innerHTML = isKo ? "⚙️ 데모" : "⚙️ Demo";
+        toggleBtn.title = isKo ? "시험 시간 시뮬레이션(데모) 열기" : "Sinov / Demo panelini ochish";
+      }
+
+      const headerTitle = document.getElementById("demo-header-title-text");
+      if (headerTitle) {
+        headerTitle.textContent = isKo ? "TOPIK II 시험 시간 시뮬레이션 (데모) 패널" : "TOPIK II Imtihon Vaqtlarini Sinash (Demo) Paneli";
+      }
+
+      const btnLive = document.getElementById("demo-btn-live");
+      if (btnLive) btnLive.textContent = isKo ? "🟢 현재 실시간 복귀" : "🟢 Hozirgi Real Vaqt";
+
+      const btnNonExam = document.getElementById("demo-btn-nonexam");
+      if (btnNonExam) btnNonExam.textContent = isKo ? "🚫 시험일 아님" : "🚫 Imtihon kuni emas";
+
+      const btnClose = document.getElementById("demo-btn-close");
+      if (btnClose) btnClose.textContent = isKo ? "✕ 닫기" : "✕ Yopish";
+
+      const cat1 = document.getElementById("demo-cat-1");
+      if (cat1) cat1.textContent = isKo ? "1. 듣기:" : "1. Eshitish:";
+      const cat2 = document.getElementById("demo-cat-2");
+      if (cat2) cat2.textContent = isKo ? "2. 쓰기:" : "2. Yozish:";
+      const cat3 = document.getElementById("demo-cat-3");
+      if (cat3) cat3.textContent = isKo ? "3. 휴식:" : "3. Tanaffus:";
+      const cat4 = document.getElementById("demo-cat-4");
+      if (cat4) cat4.textContent = isKo ? "4. 읽기:" : "4. O'qish:";
+
+      document.querySelectorAll(".demo-buttons-row .demo-btn[data-preset]").forEach(function(btn) {
+        const p = btn.getAttribute("data-preset");
+        if (demoPresetLabels[p]) {
+          btn.textContent = isKo ? demoPresetLabels[p].ko : demoPresetLabels[p].uz;
+        }
+      });
+
+      const customLabel = document.getElementById("demo-custom-label");
+      if (customLabel) customLabel.textContent = isKo ? "임의 시간 입력:" : "Ixtiyoriy vaqt kiritish:";
+
+      const btnCustomSet = document.getElementById("demo-btn-custom-set");
+      if (btnCustomSet) btnCustomSet.textContent = isKo ? "설정" : "O'rnatish";
+
+      const customHint = document.getElementById("demo-custom-hint");
+      if (customHint) customHint.textContent = isKo ? "(시간 선택 후 해당 시점부터 실시간으로 초가 흐릅니다)" : "(Vaqt tanlangach, soat shu nuqtadan boshlab real sekundlarda harakatlanadi)";
+
+      updateDemoBadge();
+    }
+
+    // ── Clock & Status Elements ───────────────────────────────
+    const clockElem    = document.getElementById("clocktext");
+    const statusCard   = document.getElementById("status-card");
+    const statusText   = document.getElementById("status-text");
+    const statusTimer  = document.getElementById("status-timer");
+
+    // ── Simulation Engine (Demo Offset) ──────────────────────
+    let simulatedOffsetSec = null; // null = real live clock; number = second offset
+
+    window.setDemoPreset = function(timeStr, clickedBtn) {
+      document.querySelectorAll(".demo-btn").forEach(btn => btn.classList.remove("active-demo"));
+
+      if (!timeStr) {
+        simulatedOffsetSec = null;
+        demoForceExamDay = null;
+        currentDemoState = { type: "real", timeStr: null };
+        updateDemoBadge();
+        console.log("Real vaqt rejimiga qaytildi.");
+      } else {
+        demoForceExamDay = true; // Sinovda imtihon jadvali faol
+        currentDemoState = { type: "preset", timeStr: timeStr };
+        if (clickedBtn && !clickedBtn.classList.contains("reset-live")) {
+          clickedBtn.classList.add("active-demo");
+        }
+        const parts = timeStr.split(":").map(Number);
+        const targetSec = parts[0] * 3600 + parts[1] * 60 + (parts[2] || 0);
+        const now = new Date();
+        const realSec = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+        simulatedOffsetSec = targetSec - realSec;
+        updateDemoBadge();
+        console.log("Sinov vaqti o'rnatildi: " + timeStr);
+      }
+      tick();
+    };
+
+    window.setDemoNonExamDay = function(clickedBtn) {
+      document.querySelectorAll(".demo-btn").forEach(btn => btn.classList.remove("active-demo"));
+      if (clickedBtn) clickedBtn.classList.add("active-demo");
+      demoForceExamDay = false;
+      simulatedOffsetSec = null;
+      currentDemoState = { type: "nonexam", timeStr: null };
+      updateDemoBadge();
+      tick();
+    };
+
+    window.applyCustomDemoTime = function() {
+      const val = document.getElementById("demo-custom-time").value;
+      if (val) {
+        setDemoPreset(val, null);
+      }
+    };
+
+    window.toggleDemoPanel = function() {
+      const panel = document.getElementById("demo-control-panel");
+      if (panel) {
+        panel.classList.toggle("collapsed");
+      }
+    };
+
+    // ── Helper: Format MM:SS ──────────────────────────────────
+    function formatTime(totalSec) {
+      if (totalSec < 0) totalSec = 0;
+      const m = Math.floor(totalSec / 60);
+      const s = totalSec % 60;
+      return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }
+
+    // ── Check if today is the Exam Date ───────────────────────
+    function isTodayExamDay(nowDate) {
+      if (demoForceExamDay === true) return true;
+      if (demoForceExamDay === false) return false;
+      const target = parseDateParts(examConfig.date);
+      if (!target) return false;
+
+      const y = nowDate.getFullYear();
+      const m = nowDate.getMonth() + 1;
+      const d = nowDate.getDate();
+
+      return (y === target.year && m === target.month && d === target.day);
+    }
+
+    // ── Exam Schedule & Status Algorithm ─────────────────────
+    function getExamState(h, m, s, nowDate) {
+      // 0. Imtihon sanasi tekshiruvi:
+      if (!isTodayExamDay(nowDate)) {
+        return {
+          uz: "Hozir imtixon vaqti emas",
+          ko: "현재 시험 시간이 아닙니다",
+          rem: null,
+          isWarning: false,
+          isBreak: false,
+          showTimer: false
+        };
+      }
+      const sec = h * 3600 + m * 60 + s;
+
+      // Time markers in seconds from midnight
+      const T_0910 =  9 * 3600 + 10 * 60; // 09:10:00
+      const T_0940 =  9 * 3600 + 40 * 60; // 09:40:00
+      const T_1040 = 10 * 3600 + 40 * 60; // 10:40:00
+      const T_1130 = 11 * 3600 + 30 * 60; // 11:30:00
+      const T_1150 = 11 * 3600 + 50 * 60; // 11:50:00
+      const T_1200 = 12 * 3600;           // 12:00:00
+      const T_1310 = 13 * 3600 + 10 * 60; // 13:10:00
+      const T_1340 = 13 * 3600 + 40 * 60; // 13:40:00 (yarim soatdan keyin)
+
+      let uz = "";
+      let ko = "";
+      let rem = null;
+      let isWarning = false;
+      let isBreak = false;
+      let showTimer = true;
+
+      // 1. Kutilmoqda (09:10 gacha)
+      if (sec < T_0910) {
+        uz = "Imtihon boshlanishi kutilmoqda...";
+        ko = "시험 시작 대기 중...";
+        rem = T_0940 - sec;
+      }
+      // 2. Tayyorgarlik va kirish (09:10 - 09:40)
+      else if (sec < T_0940) {
+        uz = "Imtihon xonasiga kirish va tayyorgarlik vaqti";
+        ko = "시험실 입실 및 준비 시간";
+        rem = T_0940 - sec;
+      }
+      // 3. Eshitish imtihoni (09:40 - 10:40: 60 minut)
+      else if (sec < T_1040) {
+        rem = T_1040 - sec;
+        const elapsed = sec - T_0940;
+
+        if (elapsed < 60) {
+          // Dastlabki 1 minut
+          uz = "Eshitish imtixoni boshlandi...";
+          ko = "듣기 시험이 시작되었습니다...";
+        } else if (rem <= 120) {
+          // 10:40 ga 2 minut qolganda
+          uz = "Eshitish imtixoni tugamoqda...";
+          ko = "듣기 시험 종료 임박...";
+          isWarning = true;
+        } else {
+          uz = "Eshitish imtixoni jarayonida...";
+          ko = "듣기 시험 진행 중...";
+        }
+      }
+      // 4. Yozish imtihoni (10:40 - 11:30: 50 minut)
+      else if (sec < T_1130) {
+        rem = T_1130 - sec;
+        const elapsed = sec - T_1040;
+
+        if (elapsed < 60) {
+          // Dastlabki 1 minut
+          uz = "Yozish imtixoni boshlandi...";
+          ko = "쓰기 시험이 시작되었습니다...";
+        }
+        // 11:30 ga 10 minut qolganda 20 sekund
+        else if (rem <= 600 && rem > 580) {
+          uz = "Imtixon tugashiga 10-minut qoldi";
+          ko = "시험 종료 10분 전입니다";
+          isWarning = true;
+        }
+        // 11:30 ga 5 minut qolganda 20 sekund
+        else if (rem <= 300 && rem > 280) {
+          uz = "Imtixon tugashiga 5-minut qoldi";
+          ko = "시험 종료 5분 전입니다";
+          isWarning = true;
+        }
+        // 11:30 ga 2 minut qolganda imtihon tugaguncha (11:28:00 - 11:30:00: 2m orqaga sanash)
+        else if (rem <= 120) {
+          uz = "Yozish imtixoni tugamoqda...";
+          ko = "쓰기 시험 종료 임박...";
+          isWarning = true;
+        }
+        else {
+          uz = "Yozish imtixoni jarayonida...";
+          ko = "쓰기 시험 진행 중...";
+        }
+      }
+      // 5. Tanaffus (11:30 - 11:50: 20 minut)
+      else if (sec < T_1150) {
+        rem = T_1150 - sec;
+        const elapsed = sec - T_1130;
+
+        if (elapsed < 5) {
+          // 11:30 da 5 sekund "Yozish imtihoni tugadi"
+          uz = "Yozish imtixoni tugadi";
+          ko = "쓰기 시험이 종료되었습니다";
+          isWarning = true;
+        } else {
+          uz = "Tanaffus vaqti";
+          ko = "휴식 시간";
+          isBreak = true;
+        }
+      }
+      // 6. Auditoriyaga kirish va o'qish imtihoniga tayyorgarlik (11:50 - 12:00)
+      else if (sec < T_1200) {
+        uz = "Auditoriya kirish va o'qish imtixoniga tayyorgarlik";
+        ko = "시험실 입실 및 읽기 시험 준비 시간";
+        rem = T_1200 - sec;
+      }
+      // 7. O'qish imtihoni (12:00 - 13:10: 70 minut)
+      else if (sec < T_1310) {
+        rem = T_1310 - sec;
+        const elapsed = sec - T_1200;
+
+        if (elapsed < 60) {
+          // Dastlabki 1 minut
+          uz = "O'qish imtixoni boshlandi...";
+          ko = "읽기 시험이 시작되었습니다...";
+        }
+        // 13:10 ga 10 minut qolganda 20 sekund (13:00:00 - 13:00:20)
+        else if (rem <= 600 && rem > 580) {
+          uz = "Imtixon tugashiga 10-minut qoldi";
+          ko = "시험 종료 10분 전입니다";
+          isWarning = true;
+        }
+        // 13:10 ga 5 minut qolganda 20 sekund (13:05:00 - 13:05:20)
+        else if (rem <= 300 && rem > 280) {
+          uz = "Imtixon tugashiga 5-minut qoldi";
+          ko = "시험 종료 5분 전입니다";
+          isWarning = true;
+        }
+        // 13:10 ga 2 minut qolganda imtihon tugaguncha (13:08:00 - 13:10:00: 2m orqaga sanash)
+        else if (rem <= 120) {
+          uz = "O'qish imtixoni tugamoqda...";
+          ko = "읽기 시험 종료 임박...";
+          isWarning = true;
+        }
+        else {
+          uz = "O'qish imtixoni jarayonida...";
+          ko = "읽기 시험 진행 중...";
+        }
+      }
+      // 8. Imtihon tugadi (13:10 dan yarim soatcha 13:40 gacha)
+      else if (sec < T_1340) {
+        uz = "Imtixon tugadi";
+        ko = "시험이 종료되었습니다";
+        showTimer = false;
+        isWarning = true;
+      }
+      // 9. Kunning qolgan qismi
+      else {
+        uz = "Imtihon yakunlandi";
+        ko = "시험이 모두 종료되었습니다";
+        showTimer = false;
+      }
+
+      return { uz, ko, rem, isWarning, isBreak, showTimer };
+    }
+
+    // ── Helper: Get Current Effective Time (Live or Offset) ─
+    function getEffectiveTime() {
+      const now = new Date();
+      if (simulatedOffsetSec !== null) {
+        let secOfDay = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds() + simulatedOffsetSec;
+        secOfDay = ((secOfDay % 86400) + 86400) % 86400;
+        return {
+          dateObj: now,
+          h: Math.floor(secOfDay / 3600),
+          m: Math.floor((secOfDay % 3600) / 60),
+          s: secOfDay % 60,
+          ms: now.getMilliseconds()
+        };
+      }
+      return {
+        dateObj: now,
+        h: now.getHours(),
+        m: now.getMinutes(),
+        s: now.getSeconds(),
+        ms: now.getMilliseconds()
+      };
+    }
+
+    // ── Main Update Tick (Every Second) ──────────────────────
+    function tick() {
+      const t = getEffectiveTime();
+      const h = t.h;
+      const m = t.m;
+      const s = t.s;
+
+      // 1. Update Clock Display
+      clockElem.textContent =
+        String(h).padStart(2, "0") + ":" +
+        String(m).padStart(2, "0") + ":" +
+        String(s).padStart(2, "0");
+
+      // 2. Compute Exam Status & Countdown
+      const state = getExamState(h, m, s, t.dateObj);
+
+      // Text according to selected language
+      statusText.textContent = (currentLang === "ko") ? state.ko : state.uz;
+
+      // Countdown Timer Display
+      if (state.showTimer && state.rem !== null) {
+        statusTimer.classList.remove("hidden");
+        statusTimer.textContent = formatTime(state.rem);
+      } else {
+        statusTimer.classList.add("hidden");
+      }
+
+      // Card Visual Classes
+      statusCard.classList.remove("warning-alert", "break-time", "active-exam");
+      statusTimer.classList.remove("timer-blue");
+
+      if (state.isWarning) {
+        statusCard.classList.add("warning-alert");
+      } else if (state.isBreak) {
+        statusCard.classList.add("break-time");
+        statusTimer.classList.add("timer-blue");
+      } else if (state.showTimer) {
+        statusCard.classList.add("active-exam");
+      }
+
+      setTimeout(tick, 1000 - t.ms + 10);
+    }
+
+    tick();
+
+    // ── Language Toggle (manual button) ──────────────────────
+    const viewUz    = document.getElementById("view-uz");
+    const viewKo    = document.getElementById("view-ko");
+    const btnUz     = document.getElementById("btn-uz");
+    const btnKo     = document.getElementById("btn-ko");
+    const sheetImg  = document.getElementById("answer-sheet-img");
+    const ttUz      = document.getElementById("timetable-uz");
+    const ttKo      = document.getElementById("timetable-ko");
+
+    const IMG_SHEET_UZ = "index.files/answer-sheet-uz.jpg";
+    const IMG_SHEET_KO = "index.files/image001.jpg";
+
+    function switchLang(lang) {
+      currentLang = lang;
+      document.documentElement.lang = lang;
+      if (lang === "uz") {
+        viewUz.classList.remove("hidden");
+        viewKo.classList.add("hidden");
+        btnUz.classList.add("active-uz");
+        btnUz.classList.remove("active-ko");
+        btnKo.classList.remove("active-uz", "active-ko");
+        sheetImg.src = IMG_SHEET_UZ;
+        ttUz.hidden = false;
+        ttKo.hidden = true;
+        btnUz.setAttribute("aria-pressed", "true");
+        btnKo.setAttribute("aria-pressed", "false");
+      } else {
+        viewKo.classList.remove("hidden");
+        viewUz.classList.add("hidden");
+        btnKo.classList.add("active-ko");
+        btnKo.classList.remove("active-uz");
+        btnUz.classList.remove("active-uz", "active-ko");
+        sheetImg.src = IMG_SHEET_KO;
+        ttUz.hidden = true;
+        ttKo.hidden = false;
+        btnKo.setAttribute("aria-pressed", "true");
+        btnUz.setAttribute("aria-pressed", "false");
+      }
+      // Update exam header (round & title)
+      updateExamHeader();
+
+      // Update demo panel language
+      updateDemoPanelLang();
+
+      // Instantly update status text in the chosen language
+      const t = getEffectiveTime();
+      const state = getExamState(t.h, t.m, t.s, t.dateObj);
+      statusText.textContent = (currentLang === "ko") ? state.ko : state.uz;
+
+      // Update audio player for selected language
+      if (typeof stopRulesAudio === "function") {
+        stopRulesAudio();
+      }
+      if (rulesAudio) {
+        rulesAudio.src = (lang === "ko") ? AUDIO_KO_PATH : AUDIO_UZ_PATH;
+      }
+      if (lang === "ko") {
+        if (audioLabelPlay) audioLabelPlay.textContent = "재생";
+        if (audioLabelPause) audioLabelPause.textContent = "일시정지";
+        if (audioLabelStop) audioLabelStop.textContent = "정지";
+        if (audioVoiceText) audioVoiceText.textContent = "AI 음성";
+      } else {
+        if (audioLabelPlay) audioLabelPlay.textContent = "Play";
+        if (audioLabelPause) audioLabelPause.textContent = "Pause";
+        if (audioLabelStop) audioLabelStop.textContent = "Stop";
+        if (audioVoiceText) audioVoiceText.textContent = "AI Ovoz";
+      }
+      if (typeof updateAudioTime === "function") {
+        updateAudioTime();
+      }
+    }
+
+    // ── Rules Audio Player (Play, Pause, Stop) ───────────────
+    const rulesAudio      = document.getElementById("rules-audio");
+    const audioPlayBtn    = document.getElementById("audio-play-btn");
+    const audioPauseBtn   = document.getElementById("audio-pause-btn");
+    const audioStopBtn    = document.getElementById("audio-stop-btn");
+    const audioTimeDisp   = document.getElementById("audio-time");
+    const audioVoiceBadge = document.getElementById("audio-voice-badge");
+    const audioVoiceText  = document.getElementById("audio-voice-text");
+    const audioLabelPlay  = document.getElementById("audio-label-play");
+    const audioLabelPause = document.getElementById("audio-label-pause");
+    const audioLabelStop  = document.getElementById("audio-label-stop");
+
+    const AUDIO_UZ_PATH = "index.files/rules-audio-uz.mp3";
+    const AUDIO_KO_PATH = "index.files/rules-audio-ko.mp3";
+
+    function formatAudioSeconds(sec) {
+      if (isNaN(sec) || sec < 0) sec = 0;
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+    }
+
+    function updateAudioTime() {
+      if (!rulesAudio) return;
+      const cur = rulesAudio.currentTime || 0;
+      const dur = rulesAudio.duration || (currentLang === "ko" ? 112 : 121);
+      if (audioTimeDisp) {
+        audioTimeDisp.textContent = formatAudioSeconds(cur) + " / " + formatAudioSeconds(dur);
+      }
+    }
+
+    function setAudioUIState(state) {
+      const isKo = (currentLang === "ko");
+      if (!audioPlayBtn) return;
+
+      if (state === "playing") {
+        audioPlayBtn.classList.add("is-playing");
+        audioPauseBtn.classList.remove("is-paused");
+        audioPauseBtn.disabled = false;
+        audioStopBtn.disabled = false;
+        if (audioVoiceBadge) audioVoiceBadge.classList.add("is-active");
+        if (audioVoiceText) audioVoiceText.textContent = isKo ? "재생 중" : "O'qilmoqda";
+      } else if (state === "paused") {
+        audioPlayBtn.classList.remove("is-playing");
+        audioPauseBtn.classList.add("is-paused");
+        audioPauseBtn.disabled = false;
+        audioStopBtn.disabled = false;
+        if (audioVoiceBadge) audioVoiceBadge.classList.remove("is-active");
+        if (audioVoiceText) audioVoiceText.textContent = isKo ? "일시 정지" : "To'xtatildi";
+      } else {
+        // stopped
+        audioPlayBtn.classList.remove("is-playing");
+        audioPauseBtn.classList.remove("is-paused");
+        audioPauseBtn.disabled = true;
+        audioStopBtn.disabled = true;
+        if (audioVoiceBadge) audioVoiceBadge.classList.remove("is-active");
+        if (audioVoiceText) audioVoiceText.textContent = isKo ? "AI 음성" : "AI Ovoz";
+        updateAudioTime();
+      }
+    }
+
+    window.playRulesAudio = function() {
+      if (!rulesAudio) return;
+      const targetSrc = (currentLang === "ko") ? AUDIO_KO_PATH : AUDIO_UZ_PATH;
+      if (!rulesAudio.src || !rulesAudio.src.endsWith(targetSrc)) {
+        rulesAudio.src = targetSrc;
+      }
+      const p = rulesAudio.play();
+      if (p !== undefined) {
+        p.then(function() {
+          setAudioUIState("playing");
+        }).catch(function(err) {
+          console.warn("Audio file play error, using Web Speech API fallback:", err);
+          playSpeechSynthesisFallback();
+        });
+      }
+    };
+
+    window.pauseRulesAudio = function() {
+      if (rulesAudio && !rulesAudio.paused) {
+        rulesAudio.pause();
+      }
+      if (window.speechSynthesis && window.speechSynthesis.speaking) {
+        window.speechSynthesis.pause();
+      }
+      setAudioUIState("paused");
+    };
+
+    window.stopRulesAudio = function() {
+      if (rulesAudio) {
+        rulesAudio.pause();
+        rulesAudio.currentTime = 0;
+      }
+      if (window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      setAudioUIState("stopped");
+    };
+
+    if (rulesAudio) {
+      rulesAudio.addEventListener("timeupdate", updateAudioTime);
+      rulesAudio.addEventListener("loadedmetadata", updateAudioTime);
+      rulesAudio.addEventListener("ended", function() {
+        stopRulesAudio();
+      });
+      // Initial time display
+      updateAudioTime();
+    }
+
+    function playSpeechSynthesisFallback() {
+      if (!('speechSynthesis' in window)) return;
+      window.speechSynthesis.cancel();
+      const textElem = (currentLang === "ko") ? document.getElementById("view-ko") : document.getElementById("view-uz");
+      const fullText = textElem ? textElem.innerText : "";
+      const utterance = new SpeechSynthesisUtterance(fullText);
+      utterance.lang = (currentLang === "ko") ? "ko-KR" : "uz-UZ";
+      utterance.rate = 0.95;
+      utterance.onstart = function() { setAudioUIState("playing"); };
+      utterance.onend = function() { setAudioUIState("stopped"); };
+      utterance.onerror = function() { setAudioUIState("stopped"); };
+      window.speechSynthesis.speak(utterance);
+    }
+
+    // Initial load of config.js
+    loadConfig();
+
+    // ── Panel Focus / Fullscreen Mode ────────────────────────
+    let focusedPanelKey = null;
+
+    function closePanelFocus() {
+      document.body.classList.remove("panel-focused");
+      document.querySelectorAll(".panel-card[data-panel]").forEach(function (panel) {
+        panel.classList.remove("is-focused", "is-hidden");
+      });
+      document.querySelectorAll(".panel-focus-btn").forEach(function (btn) {
+        btn.classList.remove("is-active");
+        btn.setAttribute("aria-pressed", "false");
+      });
+      focusedPanelKey = null;
+    }
+
+    function togglePanelFocus(key) {
+      if (focusedPanelKey === key) {
+        closePanelFocus();
+        return;
+      }
+
+      closePanelFocus();
+      focusedPanelKey = key;
+      document.body.classList.add("panel-focused");
+
+      document.querySelectorAll(".panel-card[data-panel]").forEach(function (panel) {
+        if (panel.dataset.panel === key) {
+          panel.classList.add("is-focused");
+        } else {
+          panel.classList.add("is-hidden");
+        }
+      });
+
+      const btn = document.querySelector('.panel-focus-btn[data-focus-panel="' + key + '"]');
+      if (btn) {
+        btn.classList.add("is-active");
+        btn.setAttribute("aria-pressed", "true");
+      }
+      window.scrollTo(0, 0);
+    }
+
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && focusedPanelKey) {
+        closePanelFocus();
+      }
+    });
+  </script>
+</body>
+</html>
